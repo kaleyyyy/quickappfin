@@ -377,6 +377,7 @@ footer {
     padding: 1.5rem;
     border-radius: 16px;
     text-align: center;
+    margin-top: 8rem;
     margin-bottom: 1rem;
     box-shadow: 0 2px 8px var(--shadow);
     border: 1px solid var(--border-gray);
@@ -493,14 +494,14 @@ footer {
 }
 
 .unit-header h3 {
-    font-size: 1.8rem;
+    font-size: 2.5rem;
     font-weight: 800;
     color: var(--text-dark);
     margin-bottom: 0.5rem;
 }
 
 .unit-header p {
-    font-size: 1rem;
+    font-size: 1.2rem;
     color: var(--text-gray);
 }
 
