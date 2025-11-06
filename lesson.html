@@ -13,17 +13,21 @@
         }
         @keyframes correct { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
         @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-10px); } 75% { transform: translateX(10px); } }
-        .glass { background: rgba(30, 41, 56, 0.8); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.1); }
+        .glass { 
+            background: rgba(20, 35, 55, 0.85); 
+            backdrop-filter: blur(12px); 
+            border: 1px solid rgba(255, 255, 255, 0.08); 
+        }
         .animate-correct { animation: correct 0.5s ease; }
         .animate-shake { animation: shake 0.4s ease; }
     </style>
 </head>
-<body class="bg-gradient-to-br from-slate-900 via-blue-900 to-slate-800 min-h-screen">
+<body class="bg-gradient-to-br from-slate-950 via-slate-900 to-slate-800 min-h-screen">
     <!-- Progress Bar -->
     <div class="fixed top-0 left-0 right-0 z-50 glass border-b border-white/10">
         <div class="flex items-center justify-between px-6 py-4">
             <div class="flex-1 bg-slate-800 rounded-full h-4 overflow-hidden border-2 border-slate-700">
-                <div class="h-full bg-gradient-to-r from-cyan-500 to-blue-600 transition-all duration-500 ease-out shadow-lg shadow-blue-500/50" id="lessonProgress" style="width: 0%"></div>
+                <div class="h-full bg-gradient-to-r from-blue-600 to-blue-700 transition-all duration-500 ease-out" id="lessonProgress" style="width: 0%"></div>
             </div>
             <button onclick="window.location.href='modules-gameboard.html'" class="ml-4 w-12 h-12 glass rounded-full flex items-center justify-center hover:bg-red-500/20 hover:border-red-500/50 transition-all group">
                 <i class="fa-solid fa-times text-white text-xl group-hover:rotate-90 transition-transform"></i>
@@ -39,10 +43,10 @@
         </div>
 
         <div class="mt-8 space-y-4 max-w-3xl mx-auto w-full">
-            <button id="checkButton" onclick="checkAnswer()" class="w-full py-6 bg-gradient-to-r from-cyan-500 via-blue-500 to-blue-600 rounded-full text-white font-black text-xl shadow-2xl hover:shadow-blue-500/50 transform hover:scale-105 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 border-4 border-blue-400/30">
+            <button id="checkButton" onclick="checkAnswer()" class="w-full py-6 bg-gradient-to-r from-blue-600 to-blue-700 rounded-full text-white font-black text-xl shadow-lg hover:brightness-110 transform hover:scale-105 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 border-4 border-blue-500/20">
                 CHECK ANSWER 
             </button>
-            <button id="continueButton" onclick="continueLesson()" class="hidden w-full py-6 bg-gradient-to-r from-green-500 to-emerald-600 rounded-full text-white font-black text-xl shadow-2xl hover:shadow-green-500/50 transform hover:scale-105 transition-all duration-300 border-4 border-green-400/30">
+            <button id="continueButton" onclick="continueLesson()" class="hidden w-full py-6 bg-gradient-to-r from-blue-600 to-blue-700 rounded-full text-white font-black text-xl shadow-lg hover:brightness-110 transform hover:scale-105 transition-all duration-300 border-4 border-blue-500/20">
                 CONTINUE <i class="fas fa-arrow-right ml-2"></i>
             </button>
         </div>
