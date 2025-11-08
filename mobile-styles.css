@@ -1,0 +1,90 @@
+/* Mobile Responsive Styles */
+@media (max-width: 768px) {
+    /* Stack lessons vertically on mobile */
+    .unit-container {
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        gap: 60px !important;
+        min-height: auto !important;
+        padding: 20px 0 !important;
+    }
+    
+    /* Reset absolute positioning on mobile */
+    .lesson-node {
+        position: relative !important;
+        left: auto !important;
+        right: auto !important;
+        top: auto !important;
+        bottom: auto !important;
+        transform: none !important;
+    }
+    
+    .lesson-center {
+        position: relative !important;
+        left: auto !important;
+        transform: none !important;
+    }
+    
+    /* Hide path lines on mobile */
+    .path-line-1, .path-line-2, .path-line-3 {
+        display: none !important;
+    }
+    
+    /* Smaller lesson nodes on mobile */
+    .lesson-node .w-40 {
+        width: 120px !important;
+        height: 120px !important;
+    }
+    
+    .lesson-node .w-12 {
+        width: 40px !important;
+        height: 40px !important;
+    }
+    
+    .lesson-node .text-4xl {
+        font-size: 2rem !important;
+    }
+    
+    /* Adjust navigation for mobile */
+    nav .container {
+        padding-left: 12px !important;
+        padding-right: 12px !important;
+    }
+    
+    nav .flex.gap-4 {
+        gap: 8px !important;
+    }
+    
+    nav .matte, nav button {
+        padding: 8px 10px !important;
+    }
+    
+    nav .text-lg, nav .text-xl {
+        font-size: 0.875rem !important;
+    }
+    
+    nav .text-2xl {
+        font-size: 1.25rem !important;
+    }
+    
+    /* Hide Tips button text on mobile, keep icon */
+    button[onclick="toggleTipsModal()"] span {
+        display: none;
+    }
+    
+    /* Stack stats on mobile */
+    .grid.md\:grid-cols-4 {
+        grid-template-columns: repeat(2, 1fr) !important;
+    }
+    
+    /* Adjust unit titles for mobile */
+    main h2.text-5xl {
+        font-size: 2.5rem !important;
+    }
+    
+    main .px-6 {
+        padding-left: 16px !important;
+        padding-right: 16px !important;
+    }
+}

@@ -1,9 +1,4 @@
-/* Reset and Base Styles */
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
+/* This file is no longer used - all styles are inline in HTML files */
 
 :root {
     /* Night Dark/Light Blue Color Palette */

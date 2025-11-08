@@ -448,11 +448,10 @@ function loadNextQuestion() {
     if (isConversationMode) {
         loadConversationSlide();
         
-        // Check if it's the user's turn to speak (interactive)
+       
         const line = conversationData[currentQuestion];
         if (line.speaker === "You") {
-            // User needs to select their response - check button already shown above
-            // Keep defaults set above
+            
         } else {
             // Other person speaking - just show their dialogue with continue button
             checkBtn.classList.add('hidden');
@@ -498,7 +497,7 @@ function loadConversationSlide() {
     const line = conversationData[currentQuestion];
     const isYou = line.speaker === "You";
     
-    // If it's "You" speaking, make it interactive
+    
     if (isYou) {
         currentAnswer = line.italian;
         
@@ -636,13 +635,13 @@ function loadMultipleChoice() {
         <div class="text-center mb-12">
             <div class="text-cyan-300 text-lg mb-4 font-bold">What does this mean?</div>
             <div class="text-6xl font-black bg-gradient-to-r from-blue-600 to-blue-700 bg-clip-text text-transparent mb-6 drop-shadow-lg">${word.italian}</div>
-            <button class="w-16 h-16 glass rounded-full flex items-center justify-center hover:bg-blue-500/30 transition-all mx-auto group border-2 border-blue-400/30 shadow-lg" onclick="speakItalian('${word.italian}')">
+            <button class="w-16 h-16 glass rounded-full flex items-center justify-center hover:bg-blue-500/30 transition-all mx-auto group border-2 border-blue-400/30 shadow-lg" onclick="speakItalian('${word.italian.replace(/'/g, "\\'")}')">
                 <i class="fa-solid fa-volume-high text-2xl text-blue-400 group-hover:scale-125 transition-transform"></i>
             </button>
         </div>
         <div class="space-y-4">
             ${choices.map(choice => `
-                <button class="choice-button w-full p-6 glass rounded-full text-white text-xl font-bold text-center hover:bg-white/10 hover:scale-105 transition-all border-4 border-white/10 hover:border-blue-500/50 group shadow-lg" onclick="selectChoice(this, '${choice}')">
+                <button class="choice-button w-full p-6 glass rounded-full text-white text-xl font-bold text-center hover:bg-white/10 hover:scale-105 transition-all border-4 border-white/10 hover:border-blue-500/50 group shadow-lg" onclick="selectChoice(this, '${choice.replace(/'/g, "\\'")}')">
                     <span class="group-hover:scale-110 inline-block transition-transform">${choice}</span>
                 </button>
             `).join('')}
@@ -674,13 +673,13 @@ function loadFillBlank() {
                 <div class="text-white text-3xl font-bold mb-4">"${word.italian}" means:</div>
                 <div class="inline-block min-w-[180px] px-6 py-3 border-b-4 border-dashed border-blue-500 text-center text-blue-400 font-bold text-2xl bg-blue-500/10 rounded-lg mx-2" id="blankSpace">___</div>
             </div>
-            <button class="w-16 h-16 glass rounded-full flex items-center justify-center hover:bg-blue-500/30 transition-all mx-auto group border-2 border-blue-400/30 shadow-lg" onclick="speakItalian('${word.italian}')">
+            <button class="w-16 h-16 glass rounded-full flex items-center justify-center hover:bg-blue-500/30 transition-all mx-auto group border-2 border-blue-400/30 shadow-lg" onclick="speakItalian('${word.italian.replace(/'/g, "\\'")}')">
                 <i class="fa-solid fa-volume-high text-2xl text-blue-400 group-hover:scale-125 transition-transform"></i>
             </button>
         </div>
         <div class="flex flex-wrap gap-4 justify-center mt-8">
             ${words.map(w => `
-                <button class="word-chip px-8 py-4 glass rounded-full text-white text-lg font-bold hover:bg-white/10 hover:scale-105 transition-all border-4 border-white/10 hover:border-blue-500/50 shadow-lg" onclick="fillBlank(this, '${w}')">${w}</button>
+                <button class="word-chip px-8 py-4 glass rounded-full text-white text-lg font-bold hover:bg-white/10 hover:scale-105 transition-all border-4 border-white/10 hover:border-blue-500/50 shadow-lg" onclick="fillBlank(this, &quot;${w}&quot;)">${w}</button>
             `).join('')}
         </div>
     `;
@@ -743,7 +742,7 @@ function loadTyping() {
         <div class="text-center mb-8">
             <div class="text-cyan-300 text-xl mb-4 font-bold">Type the Italian word</div>
             <div class="text-5xl font-black text-white mb-6">${word.english}</div>
-            <button class="w-16 h-16 glass rounded-full flex items-center justify-center hover:bg-blue-500/30 transition-all mx-auto group border-2 border-blue-400/30 shadow-lg" onclick="speakItalian('${word.italian}')">
+            <button class="w-16 h-16 glass rounded-full flex items-center justify-center hover:bg-blue-500/30 transition-all mx-auto group border-2 border-blue-400/30 shadow-lg" onclick="speakItalian('${word.italian.replace(/'/g, "\\'")}')">
                 <i class="fa-solid fa-volume-high text-2xl text-blue-400 group-hover:scale-125 transition-transform"></i>
             </button>
         </div>
@@ -775,7 +774,7 @@ function loadTranslate() {
             <div class="text-center mb-8">
                 <div class="text-cyan-300 text-xl mb-4 font-bold">Translate to English</div>
                 <div class="text-6xl font-black bg-gradient-to-r from-blue-600 to-blue-700 bg-clip-text text-transparent mb-6">${word.italian}</div>
-                <button class="w-16 h-16 glass rounded-full flex items-center justify-center hover:bg-blue-500/30 transition-all mx-auto group border-2 border-blue-400/30 shadow-lg" onclick="speakItalian('${word.italian}')">
+                <button class="w-16 h-16 glass rounded-full flex items-center justify-center hover:bg-blue-500/30 transition-all mx-auto group border-2 border-blue-400/30 shadow-lg" onclick="speakItalian('${word.italian.replace(/'/g, "\\'")}')">
                     <i class="fa-solid fa-volume-high text-2xl text-blue-400 group-hover:scale-125 transition-transform"></i>
                 </button>
             </div>
@@ -874,30 +873,15 @@ function fillBlank(button, word) {
     
     document.getElementById('blankSpace').textContent = word;
     
-    // Disable all buttons after selection
+    // Mark button as selected but don't disable it yet
     document.querySelectorAll('.word-chip').forEach(btn => {
-        btn.disabled = true;
-        btn.classList.add('opacity-50', 'cursor-not-allowed');
-        btn.style.pointerEvents = 'none';
+        btn.classList.remove('bg-gradient-to-br', 'from-blue-400', 'to-blue-500', 'border-blue-400');
     });
     
-    // Disable check button
-    document.getElementById('checkButton').disabled = true;
+    button.classList.add('bg-gradient-to-br', 'from-blue-400', 'to-blue-500', 'border-blue-400');
     
-    if (word === currentAnswer) {
-        button.classList.remove('from-blue-600', 'to-blue-700', 'border-blue-500/30');
-        button.classList.add('bg-gradient-to-br', 'from-blue-400', 'to-blue-500', 'border-blue-400', 'animate-correct');
-        document.getElementById('blankSpace').classList.remove('border-blue-500', 'bg-blue-500/10');
-        document.getElementById('blankSpace').classList.add('border-blue-300', 'bg-blue-400/20', 'text-blue-300');
-        score++;
-        setTimeout(() => showFeedback(true), 500);
-    } else {
-        button.classList.remove('from-blue-600', 'to-blue-700', 'border-blue-500/30');
-        button.classList.add('bg-gradient-to-br', 'from-red-500', 'to-red-600', 'border-red-500', 'animate-shake');
-        document.getElementById('blankSpace').classList.remove('border-blue-500', 'bg-blue-500/10');
-        document.getElementById('blankSpace').classList.add('border-red-400', 'bg-red-500/20', 'text-red-400');
-        setTimeout(() => showFeedback(false), 500);
-    }
+    // Enable check button since user made a selection
+    document.getElementById('checkButton').disabled = false;
 }
 
 function selectMatch(card, side, index) {
@@ -975,6 +959,57 @@ function checkAnswer() {
         } else {
             input.classList.remove('border-blue-500/30', 'border-blue-400/30', 'border-green-400/30');
             input.classList.add('border-red-500', 'bg-red-500/20', 'animate-shake');
+            setTimeout(() => showFeedback(false), 500);
+        }
+    } else if (gameMode === 'fillBlank') {
+        const blankSpace = document.getElementById('blankSpace');
+        const selectedAnswer = blankSpace.textContent.trim();
+        
+        console.log('Selected:', selectedAnswer);
+        console.log('Correct:', currentAnswer);
+        console.log('Match:', selectedAnswer === currentAnswer);
+        
+        // Disable all word chips
+        document.querySelectorAll('.word-chip').forEach(btn => {
+            btn.disabled = true;
+            btn.style.pointerEvents = 'none';
+        });
+        
+        document.getElementById('checkButton').disabled = true;
+        
+        // Check if answers match (case-insensitive and trim whitespace)
+        const isCorrect = selectedAnswer.toLowerCase() === currentAnswer.toLowerCase();
+        
+        if (isCorrect) {
+            blankSpace.classList.remove('border-blue-500', 'bg-blue-500/10', 'text-blue-400');
+            blankSpace.classList.add('border-green-400', 'bg-green-500/20', 'text-green-300');
+            
+            // Highlight the selected button as correct
+            document.querySelectorAll('.word-chip').forEach(btn => {
+                if (btn.textContent === currentAnswer) {
+                    btn.classList.remove('from-blue-400', 'to-blue-500', 'border-blue-400');
+                    btn.classList.add('bg-gradient-to-br', 'from-green-400', 'to-green-500', 'border-green-400', 'animate-correct');
+                }
+            });
+            
+            score++;
+            setTimeout(() => showFeedback(true), 500);
+        } else {
+            blankSpace.classList.remove('border-blue-500', 'bg-blue-500/10', 'text-blue-400');
+            blankSpace.classList.add('border-red-400', 'bg-red-500/20', 'text-red-400', 'animate-shake');
+            
+            // Highlight the selected button as wrong
+            document.querySelectorAll('.word-chip').forEach(btn => {
+                if (btn.textContent === selectedAnswer) {
+                    btn.classList.remove('from-blue-400', 'to-blue-500', 'border-blue-400');
+                    btn.classList.add('bg-gradient-to-br', 'from-red-500', 'to-red-600', 'border-red-500', 'animate-shake');
+                }
+                // Show correct answer
+                if (btn.textContent === currentAnswer) {
+                    btn.classList.add('bg-gradient-to-br', 'from-green-400', 'to-green-500', 'border-green-400');
+                }
+            });
+            
             setTimeout(() => showFeedback(false), 500);
         }
     }

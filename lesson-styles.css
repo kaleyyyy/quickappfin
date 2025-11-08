@@ -1,10 +1,4 @@
-/* Lesson Page Styles */
-.lesson-nav {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    padding: 1rem 2rem;
-}
+/* This file is no longer used - all styles are inline in lesson.html */
 
 .lesson-progress-bar {
     flex: 1;
