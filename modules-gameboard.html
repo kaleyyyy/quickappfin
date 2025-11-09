@@ -317,6 +317,10 @@
                     <span class="text-xl font-semibold text-slate-200">QuickLearn</span>
                 </a>
                 <div class="flex gap-4">
+                    <a href="progress.html" class="matte px-6 py-3 rounded-lg flex items-center gap-3 border border-slate-700 hover:border-cyan-500/50 transition-all hover:scale-105">
+                        <i class="fas fa-chart-line text-cyan-400 text-lg"></i>
+                        <span class="text-slate-200 font-semibold text-lg">Progress</span>
+                    </a>
                     <button onclick="toggleTipsModal()" class="matte px-6 py-3 rounded-lg flex items-center gap-3 border border-slate-700 hover:border-blue-500/50 transition-all hover:scale-105">
                         <i class="fas fa-lightbulb text-yellow-400 text-lg"></i>
                         <span class="text-slate-200 font-semibold text-lg">Tips</span>
@@ -1145,12 +1149,23 @@
             }
         });
 
-        // Load user stats
+        // Load user stats using UserProgress system
         const xp = localStorage.getItem('userXP') || '0';
         document.getElementById('xpNumber').textContent = xp + ' XP';
         
         const streak = localStorage.getItem('userStreak') || '0';
         document.getElementById('streakNumber').textContent = streak;
+    </script>
+    
+    <!-- Include user progress library -->
+    <script src="user-progress.js"></script>
+    <script>
+        // Update XP display with cookie-based progress
+        window.addEventListener('load', function() {
+            const stats = UserProgress.getStats();
+            document.getElementById('xpNumber').textContent = stats.xp + ' XP';
+            // Note: Streak tracking can be added later
+        });
     </script>
 </body>
 </html>

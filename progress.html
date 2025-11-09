@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <title>Your Progress - QuickLearn</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Prevent white flash on scroll */
+        html {
+            background-color: #020617;
+        }
+        
+        body {
+            background-color: #020617;
+            overflow-x: hidden;
+        }
+        
+        .matte { 
+            background: #1e293b;
+        }
+        
+        .glass { 
+            background: rgba(30, 41, 59, 0.95); 
+            backdrop-filter: blur(12px); 
+            border: 1px solid rgba(148, 163, 184, 0.2); 
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in { animation: fadeIn 0.6s ease-out; }
+        
+        @keyframes gradient-shift {
+            0%, 100% { 
+                background-position: 0% 50%;
+            }
+            50% { 
+                background-position: 100% 50%;
+            }
+        }
+        
+        @keyframes drift {
+            0% { 
+                transform: translate(0, 0) rotate(0deg);
+            }
+            33% { 
+                transform: translate(30px, -30px) rotate(120deg);
+            }
+            66% { 
+                transform: translate(-20px, 20px) rotate(240deg);
+            }
+            100% { 
+                transform: translate(0, 0) rotate(360deg);
+            }
+        }
+        
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.3; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.2); }
+        }
+        
+        .animated-bg {
+            background: linear-gradient(-45deg, #020617, #0f172a, #1e293b, #0c1220);
+            background-size: 400% 400%;
+            animation: gradient-shift 20s ease infinite;
+            background-attachment: fixed;
+            min-height: 100vh;
+        }
+        
+        .orb-1 {
+            animation: drift 25s ease-in-out infinite;
+        }
+        
+        .orb-2 {
+            animation: drift 30s ease-in-out infinite reverse;
+        }
+        
+        .orb-3 {
+            animation: drift 35s ease-in-out infinite;
+        }
+        
+        .animate-twinkle { animation: twinkle 4s ease-in-out infinite; }
+    </style>
+</head>
+<body class="animated-bg min-h-screen">
+    
+    <!-- Animated Background Elements -->
+    <div class="fixed inset-0 overflow-hidden pointer-events-none z-0">
+        <!-- Twinkling stars scattered across the page -->
+        <div class="absolute top-10 right-10 w-2 h-2 bg-blue-300/30 rounded-full animate-twinkle"></div>
+        <div class="absolute top-20 left-1/4 w-1 h-1 bg-cyan-300/25 rounded-full animate-twinkle" style="animation-delay: 0.5s;"></div>
+        <div class="absolute top-1/3 right-1/4 w-1.5 h-1.5 bg-sky-300/28 rounded-full animate-twinkle" style="animation-delay: 1s;"></div>
+        <div class="absolute bottom-1/4 left-1/3 w-2 h-2 bg-blue-400/25 rounded-full animate-twinkle" style="animation-delay: 1.5s;"></div>
+        <div class="absolute bottom-20 right-1/3 w-1 h-1 bg-indigo-300/22 rounded-full animate-twinkle" style="animation-delay: 2s;"></div>
+        <div class="absolute top-1/2 left-1/5 w-1.5 h-1.5 bg-slate-400/20 rounded-full animate-twinkle" style="animation-delay: 2.5s;"></div>
+        <div class="absolute top-1/4 right-1/3 w-1 h-1 bg-blue-200/25 rounded-full animate-twinkle" style="animation-delay: 3s;"></div>
+        <div class="absolute bottom-1/3 left-1/4 w-2 h-2 bg-cyan-400/20 rounded-full animate-twinkle" style="animation-delay: 3.5s;"></div>
+        <div class="absolute top-3/4 right-1/5 w-1.5 h-1.5 bg-sky-400/22 rounded-full animate-twinkle" style="animation-delay: 4s;"></div>
+        
+        <!-- Large glowing orbs with drift animation -->
+        <div class="orb-1 absolute top-40 left-20 w-96 h-96 bg-blue-500/5 rounded-full blur-3xl"></div>
+        <div class="orb-2 absolute bottom-40 right-20 w-80 h-80 bg-indigo-500/5 rounded-full blur-3xl"></div>
+        <div class="orb-3 absolute top-1/2 left-1/2 w-72 h-72 bg-slate-500/5 rounded-full blur-3xl"></div>
+        
+        <!-- Additional subtle orbs -->
+        <div class="absolute top-1/4 right-1/4 w-64 h-64 bg-cyan-500/3 rounded-full blur-2xl animate-pulse" style="animation-duration: 8s;"></div>
+        <div class="absolute bottom-1/4 left-1/4 w-56 h-56 bg-blue-600/3 rounded-full blur-2xl animate-pulse" style="animation-duration: 10s; animation-delay: 2s;"></div>
+    </div>
+    
+    <!-- Navigation -->
+    <nav class="relative z-50 matte border-b border-slate-700">
+        <div class="max-w-7xl mx-auto px-6 py-4">
+            <div class="flex justify-between items-center">
+                <a href="index.html" class="flex items-center gap-3 group">
+                    <i class="fas fa-graduation-cap text-3xl text-cyan-400 group-hover:text-cyan-300 transition-colors"></i>
+                    <span class="text-xl font-bold text-slate-200">QuickLearn Italian</span>
+                </a>
+                <a href="modules-gameboard.html" class="matte px-6 py-3 rounded-lg border border-slate-700 hover:border-blue-500/50 transition-all hover:scale-105 flex items-center gap-2">
+                    <i class="fas fa-arrow-left text-slate-400"></i>
+                    <span class="text-slate-200 font-semibold">Back to Lessons</span>
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="relative z-10 container mx-auto px-6 py-12">
+        <div class="max-w-5xl mx-auto">
+            <!-- Header -->
+            <div class="text-center mb-12 animate-fade-in">
+                <h1 class="text-5xl font-black text-slate-100 mb-4 tracking-tight">
+                    Your Learning Progress
+                </h1>
+                <p class="text-xl text-slate-300 font-semibold">Track your Italian learning journey</p>
+            </div>
+
+            <!-- Stats Overview -->
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-12 animate-fade-in" style="animation-delay: 0.2s">
+                <div class="matte rounded-3xl p-6 text-center hover:scale-105 transition-transform border border-slate-700">
+                    <div class="text-4xl mb-2">🏆</div>
+                    <div class="text-3xl font-black text-cyan-400" id="totalXP">0</div>
+                    <div class="text-sm text-slate-400 mt-1 font-medium">Total XP</div>
+                </div>
+                <div class="matte rounded-3xl p-6 text-center hover:scale-105 transition-transform border border-slate-700">
+                    <div class="text-4xl mb-2">⭐</div>
+                    <div class="text-3xl font-black text-yellow-400" id="currentLevel">1</div>
+                    <div class="text-sm text-slate-400 mt-1 font-medium">Current Level</div>
+                </div>
+                <div class="matte rounded-3xl p-6 text-center hover:scale-105 transition-transform border border-slate-700">
+                    <div class="text-4xl mb-2">📚</div>
+                    <div class="text-3xl font-black text-green-400" id="lessonsCompleted">0</div>
+                    <div class="text-sm text-slate-400 mt-1 font-medium">Lessons Done</div>
+                </div>
+                <div class="matte rounded-3xl p-6 text-center hover:scale-105 transition-transform border border-slate-700">
+                    <div class="text-4xl mb-2">🎯</div>
+                    <div class="text-3xl font-black text-purple-400" id="overallAccuracy">0%</div>
+                    <div class="text-sm text-slate-400 mt-1 font-medium">Accuracy</div>
+                </div>
+            </div>
+
+            <!-- Progress Details -->
+            <div class="grid md:grid-cols-2 gap-8 mb-12 animate-fade-in" style="animation-delay: 0.4s">
+                <!-- Level Progress -->
+                <div class="matte rounded-3xl p-8 border border-slate-700">
+                    <h2 class="text-2xl font-bold text-slate-100 mb-4 flex items-center gap-3">
+                        <i class="fas fa-chart-line text-cyan-400"></i>
+                        Level Progress
+                    </h2>
+                    <div class="space-y-4">
+                        <div>
+                            <div class="flex justify-between text-sm text-slate-300 mb-2">
+                                <span>Level <span id="levelDisplay">1</span></span>
+                                <span id="xpToNextLevel">0 / 100 XP</span>
+                            </div>
+                            <div class="w-full bg-slate-800 rounded-full h-4 overflow-hidden border-2 border-slate-700">
+                                <div id="levelProgressBar" class="h-full bg-gradient-to-r from-cyan-500 to-blue-500 transition-all duration-500" style="width: 0%"></div>
+                            </div>
+                        </div>
+                        <p class="text-slate-300 text-sm" id="levelMessage">Keep learning to level up!</p>
+                    </div>
+                </div>
+
+                <!-- Storage Info -->
+                <div class="matte rounded-3xl p-8 border border-slate-700">
+                    <h2 class="text-2xl font-bold text-slate-100 mb-4 flex items-center gap-3">
+                        <i class="fas fa-cookie text-orange-400"></i>
+                        Storage Status
+                    </h2>
+                    <div class="space-y-3">
+                        <div class="flex items-center justify-between">
+                            <span class="text-slate-300">Cookies</span>
+                            <span id="cookieStatus" class="text-green-400">✓ Enabled</span>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span class="text-slate-300">LocalStorage</span>
+                            <span id="localStorageStatus" class="text-green-400">✓ Available</span>
+                        </div>
+                        <div class="flex items-center justify-between">
+                            <span class="text-slate-300">Data Sync</span>
+                            <span id="syncStatus" class="text-blue-400">Active</span>
+                        </div>
+                        <p class="text-xs text-slate-400 mt-4">
+                            <i class="fas fa-info-circle mr-1"></i>
+                            Your progress is saved using both cookies and localStorage for maximum reliability.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Completed Lessons -->
+            <div class="matte rounded-3xl p-8 mb-8 animate-fade-in border border-slate-700" style="animation-delay: 0.6s">
+                <h2 class="text-2xl font-bold text-slate-100 mb-6 flex items-center gap-3">
+                    <i class="fas fa-list-check text-green-400"></i>
+                    Completed Lessons
+                </h2>
+                <div id="lessonsList" class="space-y-3">
+                    <p class="text-slate-300 text-center py-8">No lessons completed yet. Start your journey!</p>
+                </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="flex gap-4 justify-center animate-fade-in" style="animation-delay: 0.8s">
+                <button onclick="refreshStats()" class="matte px-8 py-4 rounded-full text-slate-200 hover:bg-slate-700 transition-all transform hover:scale-105 border-2 border-cyan-500/30 hover:border-cyan-500/50 font-semibold">
+                    <i class="fas fa-refresh mr-2 text-cyan-400"></i>Refresh Stats
+                </button>
+                <button onclick="exportProgress()" class="matte px-8 py-4 rounded-full text-slate-200 hover:bg-slate-700 transition-all transform hover:scale-105 border-2 border-blue-500/30 hover:border-blue-500/50 font-semibold">
+                    <i class="fas fa-download mr-2 text-blue-400"></i>Export Data
+                </button>
+                <button onclick="resetProgress()" class="matte px-8 py-4 rounded-full text-red-400 hover:bg-red-500/20 transition-all transform hover:scale-105 border-2 border-red-500/30 hover:border-red-500/50 font-semibold">
+                    <i class="fas fa-trash mr-2"></i>Reset Progress
+                </button>
+            </div>
+        </div>
+    </main>
+
+    <!-- Include the user progress library -->
+    <script src="user-progress.js"></script>
+    
+    <script>
+        // Display progress stats
+        function displayStats() {
+            const stats = UserProgress.getStats();
+            
+            // Update stat cards
+            document.getElementById('totalXP').textContent = stats.xp;
+            document.getElementById('currentLevel').textContent = stats.level;
+            document.getElementById('lessonsCompleted').textContent = stats.lessonsCompleted;
+            document.getElementById('overallAccuracy').textContent = stats.overallAccuracy + '%';
+            
+            // Update level progress
+            document.getElementById('levelDisplay').textContent = stats.level;
+            const xpInCurrentLevel = stats.xp % 100;
+            const xpForNextLevel = 100;
+            document.getElementById('xpToNextLevel').textContent = `${xpInCurrentLevel} / ${xpForNextLevel} XP`;
+            document.getElementById('levelProgressBar').style.width = `${xpInCurrentLevel}%`;
+            
+            const xpNeeded = xpForNextLevel - xpInCurrentLevel;
+            if (xpNeeded > 0) {
+                document.getElementById('levelMessage').textContent = `${xpNeeded} XP needed to reach Level ${stats.level + 1}!`;
+            } else {
+                document.getElementById('levelMessage').textContent = `You've maxed out this level! Keep learning!`;
+            }
+            
+            // Update storage status
+            document.getElementById('cookieStatus').innerHTML = CookieManager.areCookiesEnabled() 
+                ? '<i class="fas fa-check-circle text-green-400"></i> Enabled' 
+                : '<i class="fas fa-times-circle text-red-400"></i> Disabled';
+            
+            try {
+                localStorage.setItem('test', 'test');
+                localStorage.removeItem('test');
+                document.getElementById('localStorageStatus').innerHTML = '<i class="fas fa-check-circle text-green-400"></i> Available';
+            } catch(e) {
+                document.getElementById('localStorageStatus').innerHTML = '<i class="fas fa-times-circle text-red-400"></i> Unavailable';
+            }
+            
+            // Display completed lessons
+            displayCompletedLessons();
+        }
+        
+        function displayCompletedLessons() {
+            const completedLessons = UserProgress.getAllCompletedLessons();
+            const lessonsList = document.getElementById('lessonsList');
+            
+            if (Object.keys(completedLessons).length === 0) {
+                lessonsList.innerHTML = '<p class="text-blue-300 text-center py-8">No lessons completed yet. Start your journey!</p>';
+                return;
+            }
+            
+            // Sort by completion date (most recent first)
+            const sortedLessons = Object.entries(completedLessons).sort((a, b) => 
+                new Date(b[1].completedAt) - new Date(a[1].completedAt)
+            );
+            
+            lessonsList.innerHTML = sortedLessons.map(([lessonId, data]) => `
+                <div class="flex items-center justify-between p-4 bg-slate-800/70 rounded-xl hover:bg-slate-700/70 transition-all border border-slate-700">
+                    <div class="flex items-center gap-4">
+                        <div class="w-12 h-12 bg-gradient-to-br from-cyan-500 to-blue-500 rounded-xl flex items-center justify-center">
+                            <i class="fas fa-book text-white text-xl"></i>
+                        </div>
+                        <div>
+                            <div class="text-slate-100 font-bold">${lessonId.replace(/(\d+)/, ' $1').toUpperCase()}</div>
+                            <div class="text-sm text-slate-400">${new Date(data.completedAt).toLocaleDateString()}</div>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-6">
+                        <div class="text-center">
+                            <div class="text-xl font-bold text-cyan-400">${data.score}/${data.totalQuestions}</div>
+                            <div class="text-xs text-slate-400">Score</div>
+                        </div>
+                        <div class="text-center">
+                            <div class="text-xl font-bold text-green-400">${data.accuracy}%</div>
+                            <div class="text-xs text-slate-400">Accuracy</div>
+                        </div>
+                        <div class="text-center">
+                            <div class="text-xl font-bold text-purple-400">${data.attempts}</div>
+                            <div class="text-xs text-slate-400">Attempts</div>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        function refreshStats() {
+            displayStats();
+            // Show feedback
+            const btn = event.target.closest('button');
+            const originalHTML = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-check mr-2"></i>Refreshed!';
+            setTimeout(() => {
+                btn.innerHTML = originalHTML;
+            }, 2000);
+        }
+        
+        function exportProgress() {
+            const stats = UserProgress.getStats();
+            const completedLessons = UserProgress.getAllCompletedLessons();
+            
+            const data = {
+                exportDate: new Date().toISOString(),
+                stats: stats,
+                completedLessons: completedLessons
+            };
+            
+            const dataStr = JSON.stringify(data, null, 2);
+            const dataBlob = new Blob([dataStr], {type: 'application/json'});
+            const url = URL.createObjectURL(dataBlob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = 'quicklearn-progress-' + new Date().toISOString().split('T')[0] + '.json';
+            link.click();
+            URL.revokeObjectURL(url);
+        }
+        
+        function resetProgress() {
+            if (UserProgress.resetProgress()) {
+                displayStats();
+                alert('Progress has been reset!');
+            }
+        }
+        
+        // Initialize on page load
+        window.addEventListener('load', displayStats);
+    </script>
+</body>
+</html>

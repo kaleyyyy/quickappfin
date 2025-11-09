@@ -1,3 +1,199 @@
+// Cookie Management Utility
+const CookieManager = {
+    // Set a cookie with name, value, and expiration days
+    setCookie: function(name, value, days = 365) {
+        const date = new Date();
+        date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+        const expires = "expires=" + date.toUTCString();
+        document.cookie = name + "=" + encodeURIComponent(JSON.stringify(value)) + ";" + expires + ";path=/;SameSite=Lax";
+    },
+    
+    // Get a cookie by name
+    getCookie: function(name) {
+        const nameEQ = name + "=";
+        const ca = document.cookie.split(';');
+        for(let i = 0; i < ca.length; i++) {
+            let c = ca[i];
+            while (c.charAt(0) === ' ') c = c.substring(1, c.length);
+            if (c.indexOf(nameEQ) === 0) {
+                try {
+                    return JSON.parse(decodeURIComponent(c.substring(nameEQ.length, c.length)));
+                } catch (e) {
+                    return null;
+                }
+            }
+        }
+        return null;
+    },
+    
+    // Delete a cookie
+    deleteCookie: function(name) {
+        document.cookie = name + "=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+    },
+    
+    // Check if cookies are enabled
+    areCookiesEnabled: function() {
+        try {
+            document.cookie = "cookietest=1";
+            const cookiesEnabled = document.cookie.indexOf("cookietest=") !== -1;
+            document.cookie = "cookietest=1; expires=Thu, 01-Jan-1970 00:00:01 GMT";
+            return cookiesEnabled;
+        } catch (e) {
+            return false;
+        }
+    }
+};
+
+// User Progress Manager - handles both cookies and localStorage
+const UserProgress = {
+    // Initialize and migrate from localStorage to cookies if needed
+    init: function() {
+        // Check if we should use cookies (preferred) or fallback to localStorage
+        this.useCookies = CookieManager.areCookiesEnabled();
+        
+        // Migrate from localStorage to cookies if this is first time
+        if (this.useCookies && !this.getData('migrated')) {
+            this.migrateFromLocalStorage();
+        }
+    },
+    
+    // Migrate existing localStorage data to cookies
+    migrateFromLocalStorage: function() {
+        const xp = localStorage.getItem('userXP');
+        const completedLessons = localStorage.getItem('completedLessons');
+        const userLevel = localStorage.getItem('userLevel');
+        
+        if (xp) this.setData('userXP', parseInt(xp));
+        if (completedLessons) this.setData('completedLessons', JSON.parse(completedLessons));
+        if (userLevel) this.setData('userLevel', parseInt(userLevel));
+        
+        this.setData('migrated', true);
+    },
+    
+    // Set data (uses cookies primarily, localStorage as fallback)
+    setData: function(key, value) {
+        if (this.useCookies) {
+            CookieManager.setCookie(key, value);
+        }
+        // Always also save to localStorage as backup
+        try {
+            localStorage.setItem(key, JSON.stringify(value));
+        } catch (e) {
+            console.warn('localStorage not available:', e);
+        }
+    },
+    
+    // Get data (tries cookies first, then localStorage)
+    getData: function(key, defaultValue = null) {
+        if (this.useCookies) {
+            const cookieValue = CookieManager.getCookie(key);
+            if (cookieValue !== null) return cookieValue;
+        }
+        
+        // Fallback to localStorage
+        try {
+            const value = localStorage.getItem(key);
+            return value ? JSON.parse(value) : defaultValue;
+        } catch (e) {
+            return defaultValue;
+        }
+    },
+    
+    // Save lesson completion
+    completeLesson: function(lessonId, score, totalQuestions) {
+        const completedLessons = this.getData('completedLessons', {});
+        const timestamp = new Date().toISOString();
+        
+        completedLessons[lessonId] = {
+            score: score,
+            totalQuestions: totalQuestions,
+            accuracy: Math.round((score / totalQuestions) * 100),
+            completedAt: timestamp,
+            attempts: (completedLessons[lessonId]?.attempts || 0) + 1
+        };
+        
+        this.setData('completedLessons', completedLessons);
+    },
+    
+    // Check if lesson is completed
+    isLessonCompleted: function(lessonId) {
+        const completedLessons = this.getData('completedLessons', {});
+        return !!completedLessons[lessonId];
+    },
+    
+    // Get lesson stats
+    getLessonStats: function(lessonId) {
+        const completedLessons = this.getData('completedLessons', {});
+        return completedLessons[lessonId] || null;
+    },
+    
+    // Add XP
+    addXP: function(amount) {
+        const currentXP = this.getData('userXP', 0);
+        const newXP = currentXP + amount;
+        this.setData('userXP', newXP);
+        
+        // Update level based on XP
+        this.updateLevel(newXP);
+        
+        return newXP;
+    },
+    
+    // Get current XP
+    getXP: function() {
+        return this.getData('userXP', 0);
+    },
+    
+    // Update user level based on XP
+    updateLevel: function(xp) {
+        // Simple level calculation: 100 XP per level
+        const level = Math.floor(xp / 100) + 1;
+        this.setData('userLevel', level);
+        return level;
+    },
+    
+    // Get current level
+    getLevel: function() {
+        return this.getData('userLevel', 1);
+    },
+    
+    // Get all completed lessons
+    getAllCompletedLessons: function() {
+        return this.getData('completedLessons', {});
+    },
+    
+    // Reset all progress (use with caution!)
+    resetProgress: function() {
+        if (confirm('Are you sure you want to reset all progress? This cannot be undone.')) {
+            this.setData('userXP', 0);
+            this.setData('userLevel', 1);
+            this.setData('completedLessons', {});
+            return true;
+        }
+        return false;
+    },
+    
+    // Get summary statistics
+    getStats: function() {
+        const completedLessons = this.getAllCompletedLessons();
+        const lessonCount = Object.keys(completedLessons).length;
+        const totalScore = Object.values(completedLessons).reduce((sum, lesson) => sum + lesson.score, 0);
+        const totalQuestions = Object.values(completedLessons).reduce((sum, lesson) => sum + lesson.totalQuestions, 0);
+        
+        return {
+            xp: this.getXP(),
+            level: this.getLevel(),
+            lessonsCompleted: lessonCount,
+            totalScore: totalScore,
+            totalQuestions: totalQuestions,
+            overallAccuracy: totalQuestions > 0 ? Math.round((totalScore / totalQuestions) * 100) : 0
+        };
+    }
+};
+
+// Initialize user progress system when script loads
+UserProgress.init();
+
 // Italian Learning Content - Organized by lessons matching modules
 const lessonContent = {
     // UNIT 1 - Daily Basics & Greetings
@@ -397,6 +593,8 @@ let currentLesson = 'lesson1';
 let allWords = [];
 let isConversationMode = false;
 let conversationData = null;
+let incorrectQuestions = []; // Track questions answered incorrectly
+let currentQuestionData = null; // Store current question data for retry
 
 // Initialize lesson
 function initLesson() {
@@ -427,6 +625,52 @@ function initLesson() {
 
 // Load next question
 function loadNextQuestion() {
+    // Check if we've gone through all regular questions and need to retry incorrect ones
+    if (currentQuestion >= totalQuestions && incorrectQuestions.length > 0) {
+        // Get the first incorrect question to retry
+        const retryQuestion = incorrectQuestions.shift();
+        currentQuestionData = retryQuestion;
+        
+        // Update progress (stay at 100% during retry phase)
+        updateProgress();
+        
+        // Reset buttons
+        const checkBtn = document.getElementById('checkButton');
+        const continueBtn = document.getElementById('continueButton');
+        checkBtn.classList.remove('hidden');
+        continueBtn.classList.add('hidden');
+        checkBtn.disabled = false;
+        
+        // Load the retry question based on its type
+        if (retryQuestion.isConversation) {
+            isConversationMode = true;
+            loadConversationSlide();
+        } else {
+            isConversationMode = false;
+            gameMode = retryQuestion.mode;
+            currentAnswer = retryQuestion.answer;
+            
+            switch(gameMode) {
+                case 'multipleChoice':
+                    loadMultipleChoiceFromData(retryQuestion);
+                    break;
+                case 'fillBlank':
+                    loadFillBlankFromData(retryQuestion);
+                    break;
+                case 'matchPairs':
+                    loadMatchPairsFromData(retryQuestion);
+                    break;
+                case 'typing':
+                    loadTypingFromData(retryQuestion);
+                    break;
+                case 'translate':
+                    loadTranslateFromData(retryQuestion);
+                    break;
+            }
+        }
+        return;
+    }
+    
     if (currentQuestion >= totalQuestions) {
         showCompletionScreen();
         return;
@@ -446,10 +690,17 @@ function loadNextQuestion() {
 
     // If conversation mode, show conversation slide
     if (isConversationMode) {
+        const line = conversationData[currentQuestion];
+        currentQuestionData = {
+            isConversation: true,
+            questionIndex: currentQuestion,
+            line: line,
+            answer: line.speaker === "You" ? line.italian : null
+        };
+        currentAnswer = line.speaker === "You" ? line.italian : null;
+        
         loadConversationSlide();
         
-       
-        const line = conversationData[currentQuestion];
         if (line.speaker === "You") {
             
         } else {
@@ -462,6 +713,15 @@ function loadNextQuestion() {
         // Random game mode selection
         const modes = ['multipleChoice', 'fillBlank', 'matchPairs', 'typing', 'translate'];
         gameMode = modes[Math.floor(Math.random() * modes.length)];
+        
+        // Store question data for potential retry
+        const word = getRandomWord();
+        currentQuestionData = {
+            isConversation: false,
+            mode: gameMode,
+            word: word,
+            answer: null // Will be set in each game mode
+        };
 
         // Load appropriate game mode
         switch(gameMode) {
@@ -621,6 +881,12 @@ function loadConversationSlide() {
 function loadMultipleChoice() {
     const word = getRandomWord();
     currentAnswer = word.english;
+    
+    // Update question data for potential retry
+    if (currentQuestionData) {
+        currentQuestionData.word = word;
+        currentQuestionData.answer = word.english;
+    }
 
     const choices = [word.english];
     while (choices.length < 4) {
@@ -656,6 +922,12 @@ function loadFillBlank() {
     const word = getRandomWord();
     const sentence = `Complete: "${word.italian}" means ___`;
     currentAnswer = word.english;
+    
+    // Update question data for potential retry
+    if (currentQuestionData) {
+        currentQuestionData.word = word;
+        currentQuestionData.answer = word.english;
+    }
 
     const words = [word.english];
     while (words.length < 6) {
@@ -706,6 +978,12 @@ function loadMatchPairs() {
     shuffleArray(rightColumn);
 
     currentAnswer = words; // Store for checking
+    
+    // Update question data for potential retry
+    if (currentQuestionData) {
+        currentQuestionData.words = words;
+        currentQuestionData.answer = words;
+    }
 
     const html = `
         <div class="text-center mb-12">
@@ -737,6 +1015,12 @@ function loadMatchPairs() {
 function loadTyping() {
     const word = getRandomWord();
     currentAnswer = word.italian.toLowerCase();
+    
+    // Update question data for potential retry
+    if (currentQuestionData) {
+        currentQuestionData.word = word;
+        currentQuestionData.answer = word.italian.toLowerCase();
+    }
 
     const html = `
         <div class="text-center mb-8">
@@ -758,8 +1042,20 @@ function loadTranslate() {
     const word = getRandomWord();
     const direction = Math.random() > 0.5 ? 'toItalian' : 'toEnglish';
     
+    // Update question data for potential retry
+    if (currentQuestionData) {
+        currentQuestionData.word = word;
+        currentQuestionData.direction = direction;
+    }
+    
     if (direction === 'toItalian') {
         currentAnswer = word.italian.toLowerCase();
+        
+        // Update answer in question data
+        if (currentQuestionData) {
+            currentQuestionData.answer = word.italian.toLowerCase();
+        }
+        
         const html = `
             <div class="text-center mb-8">
                 <div class="text-cyan-300 text-xl mb-4 font-bold">Translate to Italian</div>
@@ -770,6 +1066,12 @@ function loadTranslate() {
         document.getElementById('gameArea').innerHTML = html;
     } else {
         currentAnswer = word.english.toLowerCase();
+        
+        // Update answer in question data
+        if (currentQuestionData) {
+            currentQuestionData.answer = word.english.toLowerCase();
+        }
+        
         const html = `
             <div class="text-center mb-8">
                 <div class="text-cyan-300 text-xl mb-4 font-bold">Translate to English</div>
@@ -1026,12 +1328,196 @@ function continueLesson() {
     loadNextQuestion();
 }
 
+// Helper functions to load questions from saved data (for retries)
+function loadMultipleChoiceFromData(questionData) {
+    const word = questionData.word;
+    currentAnswer = word.english;
+
+    const choices = [word.english];
+    while (choices.length < 4) {
+        const randomWord = getRandomWord();
+        if (!choices.includes(randomWord.english)) {
+            choices.push(randomWord.english);
+        }
+    }
+    shuffleArray(choices);
+
+    const html = `
+        <div class="text-center mb-12">
+            <div class="text-orange-300 text-lg mb-2 font-bold">⚠️ Try Again!</div>
+            <div class="text-cyan-300 text-lg mb-4 font-bold">What does this mean?</div>
+            <div class="text-6xl font-black bg-gradient-to-r from-blue-600 to-blue-700 bg-clip-text text-transparent mb-6 drop-shadow-lg">${word.italian}</div>
+            <button class="w-16 h-16 glass rounded-full flex items-center justify-center hover:bg-blue-500/30 transition-all mx-auto group border-2 border-blue-400/30 shadow-lg" onclick="speakItalian('${word.italian.replace(/'/g, "\\'")}')">
+                <i class="fa-solid fa-volume-high text-2xl text-blue-400 group-hover:scale-125 transition-transform"></i>
+            </button>
+        </div>
+        <div class="space-y-4">
+            ${choices.map(choice => `
+                <button class="choice-button w-full p-6 glass rounded-full text-white text-xl font-bold text-center hover:bg-white/10 hover:scale-105 transition-all border-4 border-white/10 hover:border-blue-500/50 group shadow-lg" onclick="selectChoice(this, '${choice.replace(/'/g, "\\'")}')">
+                    <span class="group-hover:scale-110 inline-block transition-transform">${choice}</span>
+                </button>
+            `).join('')}
+        </div>
+    `;
+
+    document.getElementById('gameArea').innerHTML = html;
+}
+
+function loadFillBlankFromData(questionData) {
+    const word = questionData.word;
+    currentAnswer = word.english;
+
+    const words = [word.english];
+    while (words.length < 6) {
+        const randomWord = getRandomWord();
+        if (!words.includes(randomWord.english)) {
+            words.push(randomWord.english);
+        }
+    }
+    shuffleArray(words);
+
+    const html = `
+        <div class="text-center mb-12">
+            <div class="text-orange-300 text-lg mb-2 font-bold">⚠️ Try Again!</div>
+            <div class="text-cyan-300 text-2xl mb-6 font-bold">Fill in the blank</div>
+            <div class="text-center mb-8">
+                <div class="text-white text-3xl font-bold mb-4">"${word.italian}" means:</div>
+                <div class="inline-block min-w-[180px] px-6 py-3 border-b-4 border-dashed border-blue-500 text-center text-blue-400 font-bold text-2xl bg-blue-500/10 rounded-lg mx-2" id="blankSpace">___</div>
+            </div>
+            <button class="w-16 h-16 glass rounded-full flex items-center justify-center hover:bg-blue-500/30 transition-all mx-auto group border-2 border-blue-400/30 shadow-lg" onclick="speakItalian('${word.italian.replace(/'/g, "\\'")}')">
+                <i class="fa-solid fa-volume-high text-2xl text-blue-400 group-hover:scale-125 transition-transform"></i>
+            </button>
+        </div>
+        <div class="flex flex-wrap gap-4 justify-center mt-8">
+            ${words.map(w => `
+                <button class="word-chip px-8 py-4 glass rounded-full text-white text-lg font-bold hover:bg-white/10 hover:scale-105 transition-all border-4 border-white/10 hover:border-blue-500/50 shadow-lg" onclick="fillBlank(this, &quot;${w}&quot;)">${w}</button>
+            `).join('')}
+        </div>
+    `;
+
+    document.getElementById('gameArea').innerHTML = html;
+}
+
+function loadMatchPairsFromData(questionData) {
+    const words = questionData.words || [];
+    
+    // If we don't have stored words, generate new ones
+    if (words.length === 0) {
+        const usedIndices = new Set();
+        while (words.length < 4) {
+            const randomIndex = Math.floor(Math.random() * allWords.length);
+            if (!usedIndices.has(randomIndex)) {
+                usedIndices.add(randomIndex);
+                words.push(allWords[randomIndex]);
+            }
+        }
+        questionData.words = words;
+    }
+
+    const leftColumn = words.map(w => w.italian);
+    const rightColumn = words.map(w => w.english);
+    shuffleArray(rightColumn);
+
+    currentAnswer = words;
+
+    const html = `
+        <div class="text-center mb-12">
+            <div class="text-orange-300 text-lg mb-2 font-bold">⚠️ Try Again!</div>
+            <div class="text-cyan-300 text-2xl mb-8 font-bold">Match the pairs</div>
+        </div>
+        <div class="grid grid-cols-2 gap-6 max-w-3xl mx-auto">
+            <div class="flex flex-col gap-4">
+                ${leftColumn.map((word, i) => `
+                    <div class="match-card px-6 py-5 glass rounded-2xl text-white text-xl font-bold cursor-pointer transition-all hover:scale-105 border-4 border-slate-700 hover:border-blue-500/50 text-center" data-italian="${word}" onclick="selectMatch(this, 'left', ${i})">
+                        ${word}
+                    </div>
+                `).join('')}
+            </div>
+            <div class="flex flex-col gap-4">
+                ${rightColumn.map((word, i) => `
+                    <div class="match-card px-6 py-5 glass rounded-2xl text-white text-xl font-bold cursor-pointer transition-all hover:scale-105 border-4 border-slate-700 hover:border-blue-500/50 text-center" data-english="${word}" onclick="selectMatch(this, 'right', ${i})">
+                        ${word}
+                    </div>
+                `).join('')}
+            </div>
+        </div>
+    `;
+
+    document.getElementById('gameArea').innerHTML = html;
+    window.matchState = { left: null, right: null, matches: [] };
+}
+
+function loadTypingFromData(questionData) {
+    const word = questionData.word;
+    currentAnswer = word.italian.toLowerCase();
+
+    const html = `
+        <div class="text-center mb-8">
+            <div class="text-orange-300 text-lg mb-2 font-bold">⚠️ Try Again!</div>
+            <div class="text-cyan-300 text-xl mb-4 font-bold">Type the Italian word</div>
+            <div class="text-5xl font-black text-white mb-6">${word.english}</div>
+            <button class="w-16 h-16 glass rounded-full flex items-center justify-center hover:bg-blue-500/30 transition-all mx-auto group border-2 border-blue-400/30 shadow-lg" onclick="speakItalian('${word.italian.replace(/'/g, "\\'")}')">
+                <i class="fa-solid fa-volume-high text-2xl text-blue-400 group-hover:scale-125 transition-transform"></i>
+            </button>
+        </div>
+        <input type="text" class="w-full p-6 glass rounded-full text-white text-2xl text-center font-bold border-4 border-blue-500/30 focus:border-blue-500 focus:outline-none placeholder-slate-500 shadow-lg" id="typingInput" placeholder="Type here..." autocomplete="off">
+    `;
+
+    document.getElementById('gameArea').innerHTML = html;
+    document.getElementById('typingInput').focus();
+}
+
+function loadTranslateFromData(questionData) {
+    const word = questionData.word;
+    const direction = questionData.direction || (Math.random() > 0.5 ? 'toItalian' : 'toEnglish');
+    questionData.direction = direction;
+    
+    if (direction === 'toItalian') {
+        currentAnswer = word.italian.toLowerCase();
+        const html = `
+            <div class="text-center mb-8">
+                <div class="text-orange-300 text-lg mb-2 font-bold">⚠️ Try Again!</div>
+                <div class="text-cyan-300 text-xl mb-4 font-bold">Translate to Italian</div>
+                <div class="text-6xl font-black bg-gradient-to-r from-blue-400 to-blue-500 bg-clip-text text-transparent mb-6">${word.english}</div>
+            </div>
+            <input type="text" class="w-full p-6 glass rounded-full text-white text-2xl text-center font-bold border-4 border-blue-400/30 focus:border-blue-400 focus:outline-none placeholder-slate-500 shadow-lg" id="typingInput" placeholder="Type in Italian..." autocomplete="off">
+        `;
+        document.getElementById('gameArea').innerHTML = html;
+    } else {
+        currentAnswer = word.english.toLowerCase();
+        const html = `
+            <div class="text-center mb-8">
+                <div class="text-orange-300 text-lg mb-2 font-bold">⚠️ Try Again!</div>
+                <div class="text-cyan-300 text-xl mb-4 font-bold">Translate to English</div>
+                <div class="text-6xl font-black bg-gradient-to-r from-blue-600 to-blue-700 bg-clip-text text-transparent mb-6">${word.italian}</div>
+                <button class="w-16 h-16 glass rounded-full flex items-center justify-center hover:bg-blue-500/30 transition-all mx-auto group border-2 border-blue-400/30 shadow-lg" onclick="speakItalian('${word.italian.replace(/'/g, "\\'")}')">
+                    <i class="fa-solid fa-volume-high text-2xl text-blue-400 group-hover:scale-125 transition-transform"></i>
+                </button>
+            </div>
+            <input type="text" class="w-full p-6 glass rounded-full text-white text-2xl text-center font-bold border-4 border-blue-400/30 focus:border-blue-400 focus:outline-none placeholder-slate-500 shadow-lg" id="typingInput" placeholder="Type in English..." autocomplete="off">
+        `;
+        document.getElementById('gameArea').innerHTML = html;
+    }
+    document.getElementById('typingInput').focus();
+}
+
 function showFeedback(correct) {
     const checkBtn = document.getElementById('checkButton');
     const continueBtn = document.getElementById('continueButton');
     
     checkBtn.classList.add('hidden');
     continueBtn.classList.remove('hidden');
+    
+    // Track incorrect answers for retry
+    if (!correct && currentQuestionData) {
+        // Store answer in question data
+        if (currentQuestionData.isConversation) {
+            currentQuestionData.answer = currentAnswer;
+        } else {
+            currentQuestionData.answer = currentAnswer;
+        }
+        incorrectQuestions.push(currentQuestionData);
+    }
     
     // Show encouraging message
     if (correct) {
@@ -1082,9 +1568,15 @@ function showCompletionScreen() {
     document.getElementById('checkButton').style.display = 'none';
     document.getElementById('continueButton').style.display = 'none';
     
-    // Update XP in localStorage
-    const currentXP = parseInt(localStorage.getItem('userXP') || '0');
-    localStorage.setItem('userXP', currentXP + xpEarned);
+    // Save lesson completion and add XP using UserProgress system
+    UserProgress.completeLesson(currentLesson, finalScore, totalQuestions);
+    const newXP = UserProgress.addXP(xpEarned);
+    
+    // Log progress for debugging
+    console.log('Lesson completed:', currentLesson);
+    console.log('New total XP:', newXP);
+    console.log('Current level:', UserProgress.getLevel());
+    console.log('Progress stats:', UserProgress.getStats());
 }
 
 // Start the lesson when page loads
